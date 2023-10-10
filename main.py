@@ -24,6 +24,9 @@ background_img = pygame.image.load(os.path.join("img", "background.png")).conver
 player_img = pygame.image.load(os.path.join("img", "player.png")).convert()
 player_mini_img = pygame.transform.scale(player_img, (25, 19))
 player_mini_img.set_colorkey(BLACK)
+
+pygame.display.set_icon(player_mini_img)
+
 # rock_img = pygame.image.load(os.path.join("img", "rock.png")).convert()
 bullet_img = pygame.image.load(os.path.join("img", "bullet.png")).convert()
 rock_imgs = []
@@ -110,8 +113,10 @@ def draw_init():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                return True
             elif event.type == pygame.KEYUP:
                 waiting = False
+                return False
 
 
 class Player(pygame.sprite.Sprite):
@@ -289,7 +294,9 @@ running = True
 
 while running:
     if show_init:
-        draw_init()
+        close = draw_init()
+        if close:
+            break
         show_init = False
         all_sprites = pygame.sprite.Group()
         rocks = pygame.sprite.Group()
