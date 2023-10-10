@@ -13,6 +13,7 @@ WIDTH = 500
 HEIGHT = 600
 
 pygame.init()
+pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("第一個遊戲")
@@ -58,7 +59,7 @@ pygame.mixer.music.load(os.path.join("sound", "background.ogg")),
 pygame.mixer.music.set_volume(0.4)
 
 # 載入字體
-font_name = pygame.font.match_font('arial')
+font_name = os.path.join("font.ttf")
 
 
 def draw_text(surf, text, size, x, y):
@@ -94,6 +95,23 @@ def draw_lives(surf, lives, img, x, y):
         img_rect.x = x + 30 * i
         img_rect.y = y
         surf.blit(img, img_rect)
+
+
+def draw_init():
+    screen.blit(background_img, (0, 0))
+    draw_text(screen, '太空生存戰！', 64, WIDTH / 2, HEIGHT / 4)
+    draw_text(screen, '← → 移動飛船 空白鍵發射子彈～ ', 22, WIDTH / 2, HEIGHT / 2)
+    draw_text(screen, '按任意鍵開始遊戲', 18, WIDTH / 2, HEIGHT * 3 / 4)
+    pygame.display.update()
+    waiting = True
+    while waiting:
+        clock.tick(FPS)
+        # 取得輸入
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYUP:
+                waiting = False
 
 
 class Player(pygame.sprite.Sprite):
@@ -258,20 +276,31 @@ all_sprites = pygame.sprite.Group()
 rocks = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 powers = pygame.sprite.Group()
-
 player = Player()
 all_sprites.add(player)
 for i in range(8):
-    rock = Rock()
-    all_sprites.add(rock)
-    rocks.add(rock)
+    new_rock()
 score = 0
 pygame.mixer.music.play(-1)
 
 # 遊戲迴圈
+show_init = True
 running = True
 
 while running:
+    if show_init:
+        draw_init()
+        show_init = False
+        all_sprites = pygame.sprite.Group()
+        rocks = pygame.sprite.Group()
+        bullets = pygame.sprite.Group()
+        powers = pygame.sprite.Group()
+        player = Player()
+        all_sprites.add(player)
+        for i in range(8):
+            new_rock()
+        score = 0
+
     clock.tick(FPS)
     # 取得輸入
     for event in pygame.event.get():
@@ -324,7 +353,7 @@ while running:
             gun_sound.play()
 
     if player.lives == 0 and not death_expl.alive():
-        running = False
+        show_init = True
 
     # 畫面顯示
     screen.fill(BLACK)
